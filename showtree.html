@@ -1,0 +1,150 @@
+<html>
+<head>
+  <title>Drawing parallel edges</title>
+  <meta charset="utf-8" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.16/d3.min.js" charset="utf-8" type="text/javascript"></script>
+</head>
+<style>
+  svg {
+    height: 600px;
+    width: 900px;
+    border: 1px solid gray;
+  }
+</style>
+<body>
+
+<div id="viz">
+  <svg>
+  </svg>
+</div>
+</body>
+  <footer>
+	<script>
+		// create Network
+		d3.csv("firm.csv", function(error,data){createNetwork(data)} );
+
+		function offsetEdge(d, sourceSize, targetSize) {
+		  var sourceCirc = sourceSize * 2 * Math.PI;
+		  var targetCirc = targetSize * 2 * Math.PI;
+		  var stRatio = sourceCirc/targetCirc;
+
+		  var diffX = d.target.y - d.source.y;
+		  var diffY = d.target.x - d.source.x;
+
+		  var angle0 = ( Math.atan2( diffY, diffX ) + ( Math.PI / 2 ) );
+		  var angle1 = angle0 + ( (Math.PI * 0.75) + (d.edgeNumber * 0.25) );
+		  var angle2 = angle0 + ( (Math.PI * 0.25) - (d.edgeNumber * 0.25) );
+
+		  var x1 = d.source.x + (sourceSize * Math.cos(angle1));
+		  var y1 = d.source.y - (sourceSize * Math.sin(angle1));
+		  var x2 = d.target.x + (targetSize * Math.cos(angle2));
+		  var y2 = d.target.y - (targetSize * Math.sin(angle2));
+
+		  return {x1: x1, y1: y1, x2: x2, y2: y2}
+		}
+
+		function createNetwork(edgelist) {
+		  var nodeHash = {};
+		  var edgeHash = {};
+		  var nodes = [];
+		  var edges = [];
+
+		  var EdgeColor1 = "red";
+		  
+		  var marker = d3.select("svg").append('defs')
+			.append('marker')
+			.attr("id", "Triangle")
+			.attr("refX", 6)
+			.attr("refY", 3)
+			.attr("markerUnits", 'userSpaceOnUse')
+			.attr("markerWidth", 6)
+			.attr("markerHeight", 9)
+			.attr("orient", 'auto')
+			.append('path')
+			.style("fill", EdgeColor1)
+			.attr("d", 'M 0 0 6 3 0 6 1.5 3');
+
+		  edgelist.forEach(function (edge, i) {
+			if (!nodeHash[edge.source]) {
+			  nodeHash[edge.source] = {id: edge.source, label: edge.source};
+			  nodes.push(nodeHash[edge.source]);
+			}
+			if (!nodeHash[edge.target]) {
+			  nodeHash[edge.target] = {id: edge.target, label: edge.target};
+			  nodes.push(nodeHash[edge.target]);
+			}
+			edges.push({source: nodeHash[edge.source], target: nodeHash[edge.target], weight: 1, edgeNumber: edge.weight});
+		  });
+		  createForceNetwork(nodes, edges, EdgeColor1);
+		}
+
+		function createForceNetwork(nodes, edges, edgecolor) {
+
+		//create a network from an edgelist
+		var sizeScale = d3.scale.linear().domain([1,20]).range([20,40]);
+
+		  var force = d3.layout.force().nodes(nodes).links(edges)
+		  .size([900,600])
+		  .charge(function (d) {return d.weight * -200})
+		  .linkDistance(100)
+		  .gravity(.05)
+		  .on("tick", updateNetwork);
+
+		  // Line
+		  d3.select("svg").selectAll("line")
+		  .data(edges)
+		  .enter()
+		  .append("line")
+		  .style("stroke-width", function(d){return d.edgeNumber; })
+		  .style("stroke", edgecolor)
+		  .style("stroke-opacity", "0.5")
+		  .attr("marker-end", "url(#Triangle)");
+
+		  // Node
+		  var nodeEnter = d3.select("svg").selectAll("g")
+		  .data(nodes)
+		  .enter()
+		  .append("g")
+		  .attr("class", "node")
+		  .call(force.drag());
+
+		  nodeEnter.append("circle")
+		  .attr("class", "node")
+		  .style("fill", "#476fa3")
+		  .style("stroke", "white")
+		  .style("stroke-width", "1px");
+
+		  nodeEnter.append("text")
+		  .style("fill", "#0e1f3d")
+		  .style("font-size", "0.6em")
+		  .style("font-family", "Tahoma")
+		  .style("text-anchor", "middle")
+		  .text(function(d){return d.id});
+
+		  force.start();
+		  
+		  function updateNetwork() {
+			d3.select("svg").selectAll("line").each(function (d) {
+			  //var startCoords = offsetEdge(d, sizeScale(d.source.weight), sizeScale(d.target.weight));
+			  d3.select(this)
+			  /*.attr("x1", startCoords.x1)
+			  .attr("y1", startCoords.y1)
+			  .attr("x2", startCoords.x2)
+			  .attr("y2", startCoords.y2)*/
+				.attr("x1", function(d) { return d.source.x; })
+				.attr("y1", function(d) { return d.source.y; })
+				.attr("x2", function(d) { return d.target.x; })
+				.attr("y2", function(d) { return d.target.y; });
+			})
+			
+			// Nodes
+			d3.select("svg").selectAll("circle.node")
+			  .attr("r", function (d) {return /*sizeScale(d.weight)*/ 5; });
+
+			d3.select("svg").selectAll("g.node")
+			  .attr("transform", function (d) {return "translate(" + d.x + "," + d.y + ")"});
+		  }
+		}
+	</script>
+  </footer>
+</html>
