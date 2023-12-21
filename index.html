@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Link Visualizer</title>
+    <link
+      rel="stylesheet"
+      href="node_modules/@materializecss/materialize/dist/css/materialize.min.css"
+    />
+  </head>
+  <body>
+    <main class="container">
+      <h1>Link Visualizer</h1>
+      <p>
+        1. Enter Url<br />
+        2. Click Start<br />
+        3. Wait for List<br />
+        4. Visualize
+      </p>
+
+      <section class="row" style="gap: 1em">
+        <div class="s12 m6 input-field outlined">
+          <input id="url" type="url" placeholder=" " value="https://wuda.io" />
+          <label for="url">Url</label>
+          <!--<span class="supporting-text">Supporting Text</span>-->
+        </div>
+        <button class="btn" id="btnCrawl">Start</button>
+      </section>
+    </main>
+  </body>
+  <!-- JS -->
+  <script>
+    function crawlLinks(startUrl) {}
+
+    document.querySelector("#btnCrawl").addEventListener("click", (e) => {
+      e.preventDefault();
+      const startUrl = document.querySelector("#url").value;
+      crawlLinks(startUrl);
+      return false;
+    });
+  </script>
+</html>

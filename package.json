@@ -1,0 +1,22 @@
+{
+  "name": "link-visualizer",
+  "version": "1.0.0",
+  "description": "Crawls and visualizes links of a website",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wuda-io/link-visualizer.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/wuda-io/link-visualizer/issues"
+  },
+  "homepage": "https://github.com/wuda-io/link-visualizer#readme",
+  "dependencies": {
+    "@materializecss/materialize": "^2.0.3"
+  }
+}
